@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assista o Anúncio</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; background: #0f0f0f; color: white; margin: 0; padding: 40px; }
+        h1 { color: #00ff9d; margin-bottom: 10px; }
+        button {
+            margin-top: 40px;
+            padding: 18px 40px;
+            font-size: 20px;
+            background: #00bfff;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        button:hover { background: #0099cc; }
+    </style>
+</head>
+<body>
+    <h1>🎬 Anúncio Monetag</h1>
+    <p>Assista o anúncio completo para continuar e ver seu resultado.</p>
+
+    <!-- COLE AQUI SEU SCRIPT DA MONETAG -->
+    <script>
+        // Cole seu script da Monetag aqui
+    </script>
+
+    <button onclick="finishAd()">✅ Já assisti o anúncio</button>
+
+    <script>
+        function finishAd() {
+            Telegram.WebApp.sendData(JSON.stringify({ status: "ad_completed" }));
+            Telegram.WebApp.close();
+        }
+        Telegram.WebApp.ready();
+        Telegram.WebApp.expand();
+    </script>
+</body>
+</html>
