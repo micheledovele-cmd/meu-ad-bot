@@ -1,43 +1,126 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assista o Anúncio</title>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; background: #0f0f0f; color: white; margin: 0; padding: 40px; }
-        h1 { color: #00ff9d; margin-bottom: 10px; }
-        button {
-            margin-top: 40px;
-            padding: 18px 40px;
-            font-size: 20px;
-            background: #00bfff;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-        }
-        button:hover { background: #0099cc; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quizzus - Anúncio</title>
+
+<!-- SDK do Telegram Web App (obrigatório) -->
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<!--
+  ======================================================
+  Tag SDK da Monetag: normalmente vem uma tag <script src="..."
+  data-zone="11229956" ...> no painel deles, na aba de instalação
+  da zone. Cole ela aqui em cima da função show_11229956 funcionar.
+  Sem essa tag, a função show_11229956() abaixo não vai existir.
+  ======================================================
+-->
+<!-- <<< COLE AQUI A TAG <script> DE INSTALAÇÃO DA ZONE 11229956 >>> -->
+
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: linear-gradient(160deg, #1a1a2e 0%, #16213e 100%);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    text-align: center;
+    padding: 24px;
+  }
+  .card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 32px 24px;
+    max-width: 340px;
+    width: 100%;
+  }
+  .icon { font-size: 48px; margin-bottom: 12px; }
+  h1 { font-size: 18px; margin: 0 0 8px; }
+  p { font-size: 14px; color: #a0a0c0; margin: 0 0 24px; }
+  #btn {
+    background: linear-gradient(135deg, #2ea6ff, #6c5ce7);
+    color: #fff;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+  }
+  #btn:disabled { opacity: 0.5; }
+  .spinner {
+    border: 3px solid rgba(255,255,255,0.15);
+    border-top: 3px solid #2ea6ff;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    animation: spin 0.9s linear infinite;
+    margin: 16px auto 0;
+    display: none;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
 </head>
 <body>
-    <h1>🎬 Anúncio Monetag</h1>
-    <p>Assista o anúncio completo para continuar e ver seu resultado.</p>
 
-    <!-- COLE AQUI SEU SCRIPT DA MONETAG -->
-    <script>
-        // Cole seu script da Monetag aqui
-    </script>
+<div class="card">
+  <div class="icon">🎬</div>
+  <h1 id="title">Quase lá!</h1>
+  <p id="subtitle">Assista o anúncio para desbloquear seu resultado.</p>
+  <button id="btn">Assistir Anúncio</button>
+  <div class="spinner" id="spinner"></div>
+</div>
 
-    <button onclick="finishAd()">✅ Já assisti o anúncio</button>
+<script>
+  const tg = window.Telegram.WebApp;
+  tg.ready();
+  tg.expand();
 
-    <script>
-        function finishAd() {
-            Telegram.WebApp.sendData(JSON.stringify({ status: "ad_completed" }));
-            Telegram.WebApp.close();
-        }
-        Telegram.WebApp.ready();
-        Telegram.WebApp.expand();
-    </script>
+  const btn = document.getElementById("btn");
+  const title = document.getElementById("title");
+  const subtitle = document.getElementById("subtitle");
+  const spinner = document.getElementById("spinner");
+
+  btn.addEventListener("click", () => {
+    btn.disabled = true;
+    spinner.style.display = "block";
+    title.textContent = "Carregando...";
+    subtitle.textContent = "Aguarde o anúncio carregar.";
+
+    // Rewarded Popup da Monetag (zone 11229956)
+    show_11229956('pop').then(() => {
+      // Usuário assistiu até o fim (ou fechou o interstitial)
+      onAdFinished();
+    }).catch((e) => {
+      // Erro ao carregar/exibir o anúncio
+      console.error("Erro no anúncio:", e);
+      title.textContent = "Ops!";
+      subtitle.textContent = "Não foi possível carregar o anúncio. Toque para tentar de novo.";
+      spinner.style.display = "none";
+      btn.disabled = false;
+      btn.textContent = "Tentar Novamente";
+    });
+  });
+
+  function onAdFinished() {
+    title.textContent = "✅ Liberado!";
+    subtitle.textContent = "Voltando para o seu resultado...";
+    spinner.style.display = "none";
+
+    // Envia a confirmação de volta pro bot Python
+    tg.sendData(JSON.stringify({ status: "ad_completed" }));
+
+    setTimeout(() => tg.close(), 700);
+  }
+</script>
+
 </body>
 </html>
